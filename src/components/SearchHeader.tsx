@@ -1,12 +1,14 @@
 import React, { useState, ChangeEvent } from 'react';
 import debounce from 'lodash.debounce';
-import { useSelector, useDispatch } from 'react-redux';
-import { getReposThunk, Repo } from 'features/repoSearch/reposSlice';
+import { useDispatch } from 'react-redux';
+import { getReposThunk } from 'slices/reposSlice';
+import { getUsersThunk } from 'slices/userSlice';
 // import classnames from 'classnames'
 
-// interface ListProps {
-//   repos: Repo[]
-// }
+interface SearchProps {
+  searchType: 'repos' | 'users'
+  setSearchType: Function
+}
 
 // export const SearchHeader = ({ labels, className }: IssueLabelsProps) => (
 
@@ -16,9 +18,9 @@ type SelectChangeHandler = (e: SelectEvent) => void
 
 type InputChangeHandler = (e: InputEvent) => void
 
-export const SearchHeader = () => {
+export const SearchHeader = ({ searchType, setSearchType }: SearchProps) => {
   const dispatch = useDispatch();
-  const [searchType, setSearchType] = useState('repos');
+  
   const [searchModeStatus, setSearchModeStatus] = useState('empty');
   const onSearchOptionChange: SelectChangeHandler = e => {
     setSearchType(e.target.value);
@@ -26,7 +28,7 @@ export const SearchHeader = () => {
 
   const debouncedSearch = debounce((value: string) => {
     if (searchType === 'users') {
-
+      dispatch(getUsersThunk(value));
     } else {
       dispatch(getReposThunk(value));
     }

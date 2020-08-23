@@ -8,15 +8,15 @@ const octokit = new Octokit({
   }
 });
 
-export interface RepoDetails {
-  id: number
-  name: string
-  full_name: string
-  open_issues_count: number
-}
-
 export const getRepos = async (q: String) => {
   const repos = await octokit.search.repos({
+    q
+  });
+  return repos;
+}
+
+export const getUsers = async (q: String) => {
+  const repos = await octokit.search.users({
     q
   });
   return repos;

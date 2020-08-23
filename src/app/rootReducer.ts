@@ -1,9 +1,11 @@
 import { combineReducers } from '@reduxjs/toolkit'
 
-import repoDetailsReducer from '../features/repoSearch/reposSlice'
+import repoReducer from 'slices/reposSlice';
+import userReducer from 'slices/userSlice';
 
 const rootReducer = combineReducers({
-  repos: repoDetailsReducer,
+  repos: repoReducer,
+  users: userReducer
 })
 
 export type RootState = ReturnType<typeof rootReducer>

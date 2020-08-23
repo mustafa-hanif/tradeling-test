@@ -1,24 +1,21 @@
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 
-import { AppThunk } from '../../app/store'
-
-import { RepoDetails, getRepos } from '../../api/githubAPI'
+import { getRepos } from 'api/githubAPI'
+import { User } from './userSlice';
 
 interface RepoJson {
-  items: Array<Repo>
+  data: {
+    items: Array<Repo>
+  }
 }
 // Repo search thunk
-export const getReposThunk: any = createAsyncThunk<RepoJson,string>(
+export const getReposThunk = createAsyncThunk<RepoJson,string>(
   'repos/search',
   async (q: String) => {
     const response = await getRepos(q)
     return response as RepoJson;
   }
 )
-
-interface Owner {
-  login: string
-}
 
 // name, author, stars and other statistics
 export interface Repo {
@@ -29,7 +26,7 @@ export interface Repo {
   watchers_count: number
   language: number
   forks_count: number
-  owner: Owner
+  owner: User
 }
 
 interface RepoState {
@@ -52,6 +49,10 @@ const repos = createSlice({
     builder.addCase(getReposThunk.fulfilled, (state, { payload }) => {
       state.repos = payload.data.items;
       state.loading = 'succeeded';
+    })
+
+    builder.addCase(getReposThunk.pending, (state, { payload }) => {
+      state.loading = 'pending';
     })
   }
 })

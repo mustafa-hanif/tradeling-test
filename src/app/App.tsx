@@ -1,21 +1,23 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
 
 import { RootState } from './rootReducer'
 
 import './App.css'
 import { SearchHeader } from 'components/SearchHeader'
-import { Repo } from 'features/repoSearch/reposSlice'
+import { Repo } from 'slices/reposSlice'
+import { User } from 'slices/userSlice'
 
 // name, author, stars and other statistics
 interface ListProps {
-  repos: Repo[]
+  repos?: Repo[]
+  users?: User[]
 }
 
 // export const SearchHeader = ({ labels, className }: IssueLabelsProps) => (
 const List = ({ repos }: ListProps) => {
   return <div className="results">
-    {repos.map(repo => {
+    {repos && repos.map(repo => {
       return <div key={repo.id} className="result">
         <div className="repo-name">{repo.name}</div>
         <div className="repo-desc">{repo.description}</div>
@@ -30,11 +32,23 @@ const List = ({ repos }: ListProps) => {
   </div>
 }
 
+const Loading = () => {
+  return <div className="results">
+    {[...Array(9).keys()].map(i => {
+      return <div className="result loading"></div>
+    })}
+  </div>
+}
+
 const App: React.FC = () => {
-  const { repos, loading: repoLoading, error } = useSelector((state: RootState) => state.repos)
+  const [searchType, setSearchType] = useState('repos' as 'repos' | 'users');
+  const { repos, loading: repoLoading, error: repoError } = useSelector((state: RootState) => state.repos)
+  const { users, loading: userLoading, error: userError } = useSelector((state: RootState) => state.users)
   return <div className="App">
-    <SearchHeader />
-    {repoLoading === 'succeeded' && <List repos={repos} />}
+    <SearchHeader searchType={searchType} setSearchType={setSearchType} />
+    {searchType === 'repos' && repoLoading === 'succeeded' && <List repos={repos} />}
+    {searchType === 'users' && userLoading === 'succeeded' && <List users={users} />}
+    {(repoLoading === 'pending' || userLoading === 'pending') && <Loading />}
   </div>
 }
 

@@ -7,7 +7,9 @@ import { getUsersThunk } from 'slices/userSlice';
 
 interface SearchProps {
   searchType: 'repos' | 'users'
+  searchModeStatus: 'empty' | 'searching'
   setSearchType: Function
+  setSearchModeStatus: Function
 }
 
 // export const SearchHeader = ({ labels, className }: IssueLabelsProps) => (
@@ -18,10 +20,8 @@ type SelectChangeHandler = (e: SelectEvent) => void
 
 type InputChangeHandler = (e: InputEvent) => void
 
-export const SearchHeader = ({ searchType, setSearchType }: SearchProps) => {
+export const SearchHeader = ({ searchType, setSearchType, searchModeStatus, setSearchModeStatus }: SearchProps) => {
   const dispatch = useDispatch();
-  
-  const [searchModeStatus, setSearchModeStatus] = useState('empty');
   const onSearchOptionChange: SelectChangeHandler = e => {
     setSearchType(e.target.value);
   }

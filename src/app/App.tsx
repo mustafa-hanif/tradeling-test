@@ -42,15 +42,21 @@ const Loading = () => {
 
 const App: React.FC = () => {
   const [searchType, setSearchType] = useState('repos' as 'repos' | 'users');
+  const [searchModeStatus, setSearchModeStatus] = useState('empty' as 'empty' | 'searching');
+  
   const { repos, loading: repoLoading, error: repoError } = useSelector((state: RootState) => state.repos)
   const { users, loading: userLoading, error: userError } = useSelector((state: RootState) => state.users)
+
   return <div className="App">
-    <SearchHeader searchType={searchType} setSearchType={setSearchType} />
-    {searchType === 'repos' && repoLoading === 'succeeded' && <List repos={repos} />}
-    {searchType === 'users' && userLoading === 'succeeded' && <List users={users} />}
-    {(repoLoading === 'pending' || userLoading === 'pending') && <Loading />}
+    <SearchHeader searchType={searchType} setSearchType={setSearchType} 
+    searchModeStatus={searchModeStatus} setSearchModeStatus={setSearchModeStatus} />
+
+    {searchModeStatus === 'searching' && <>
+      {searchType === 'repos' && repoLoading === 'succeeded' && <List repos={repos} />}
+      {searchType === 'users' && repoLoading === 'succeeded' && <List users={users} />}
+      {(repoLoading === 'pending' || userLoading === 'pending') && <Loading />}
+    </>}
   </div>
 }
-
 
 export default App

@@ -5,9 +5,9 @@ import { getUsers } from 'api/githubAPI'
 // Repo search thunk
 export const getUsersThunk = createAsyncThunk<PayLoadData, string, { rejectValue: Error }>(
   'users/search',
-  async (q: String) => {
-    const response = await getUsers(q)
-    return response
+  async (query: String) => {
+    const response = await getUsers(query)
+    return { ...response, query }
   }
 )
 
@@ -15,6 +15,7 @@ interface PayLoadData {
   data: {
     items: Array<User>
   }
+  query: string
 }
 
 export interface User {
@@ -27,12 +28,14 @@ export interface User {
 
 interface UserState {
   error: Error | SerializedError | null
+  query: string
   users: Array<User>
-  loading: 'idle' | 'pending' | 'succeeded' | 'failed'
+  loading: 'idle' | 'pending' | 'succeeded' | 'failed' | 'empty'
 }
 
 const initialState: UserState = {
   users: Array<User>(),
+  query: '',
   error: null,
   loading: 'idle'
 }
@@ -43,12 +46,16 @@ const users = createSlice({
   reducers: {},
   extraReducers: builder => {
     builder.addCase(getUsersThunk.fulfilled, (state, { payload }) => {
-      console.log(payload.data.items[0]);
-      state.users = payload.data.items;
-      state.loading = 'succeeded';
+      if (payload.data.items.length === 0) {
+        state.loading = 'empty';  
+      } else {
+        state.users = payload.data.items;
+        state.loading = 'succeeded';
+      }
+      state.query = payload.query;
     })
 
-    builder.addCase(getUsersThunk.pending, (state, { payload }) => {
+    builder.addCase(getUsersThunk.pending, (state) => {
       state.loading = 'pending';
     })
 

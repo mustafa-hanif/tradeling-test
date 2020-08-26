@@ -21,6 +21,11 @@ type SelectChangeHandler = (e: SelectEvent) => void
 
 type InputChangeHandler = (e: InputEvent) => void
 
+// Debounced function so only triggers if user has written something
+const debouncedSearch = debounce((value: string, searchTypeGiven: string, performSearch) => {
+  performSearch(value, searchTypeGiven);
+}, 1000, { trailing: true });
+
 export const SearchHeader = ({ searchType, setSearchType, searchModeStatus, setSearchModeStatus }: SearchProps) => {
   const [searchString, setSearchString] = useState('');
   const dispatch = useDispatch();
@@ -34,15 +39,10 @@ export const SearchHeader = ({ searchType, setSearchType, searchModeStatus, setS
     }
   }
 
-  // Debounced function so only triggers if user has written something
-  const debouncedSearch = debounce((value: string, searchTypeGiven: string) => {
-    performSearch(value, searchTypeGiven);
-  }, 1000, { trailing: true });
-
   useEffect(() => {
     // Perform a search if there are more than 2 characters
     if (searchString.length > 2) {
-      debouncedSearch(searchString, searchType);
+      debouncedSearch(searchString, searchType, performSearch);
       
       // Set the position of the search box based on where we are searching
       if (searchModeStatus === 'empty') {

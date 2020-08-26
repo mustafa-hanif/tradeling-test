@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 
 import { RootState } from './rootReducer'
@@ -16,12 +16,17 @@ const Loading = () => {
   </div>
 }
 
+const EmptyResult = () => {
+  return <div>
+    <h4>We couldn't find any data for this search query, perhaps try a different search phrase</h4>
+  </div>
+}
+
 interface ErrorProp {
   error: Error | SerializedError | null
 }
 
 const ErrorReact = ({ error }: ErrorProp) => {
-  console.log(error)
   return <div className="error">
     <h5>Error</h5>
     <div>{(error as Error)?.message}</div>
@@ -63,6 +68,10 @@ const RepoList = () => {
     return <ErrorReact error={error} />
   }
 
+  if (loading === 'empty') {
+    return <EmptyResult />
+  }
+
   return <div className="results">
     {repos.map(repo => {
       return <div key={repo.id} className="result">
@@ -83,7 +92,15 @@ const RepoList = () => {
 }
 
 const UserList = () => {
-  const { users, loading, error } = useSelector((state: RootState) => state.users);
+  const { query, users, loading, error } = useSelector((state: RootState) => state.users);
+
+  useEffect(() => {
+    if (query) {
+      const params = new URLSearchParams(window.location.search);
+      params.set('query', query);
+      window.history.replaceState({}, "", decodeURIComponent(`${window.location.pathname}?${params}`));
+    }
+  }, [query]);
 
   if (loading === 'pending') {
     return <Loading />
@@ -93,6 +110,10 @@ const UserList = () => {
     return <ErrorReact error={error} />
   }
 
+  if (loading === 'empty') {
+    return <EmptyResult />
+  }
+
   return <div className="results">
     {users.map(user => {
       return <div key={user.url} className="result">
@@ -100,15 +121,6 @@ const UserList = () => {
         <div className="repo-name">
           <a href={user.url} className="link" target="_blank" rel="noopener noreferrer">{user.login}</a>
         </div>
-        
-        {/* <div className="repo-desc">{repo.description}</div>
-        <span className="label">{repo.language}</span>
-        <div className="repo-detail">
-          <span role="img" aria-label="forks" className="center">🍴</span><div>{Intl.NumberFormat('en-US').format(repo.forks_count)}</div>
-          <span role="img" aria-label="stars" className="center">⭐</span><div>{Intl.NumberFormat('en-US').format(repo.stargazers_count)}</div>
-          <span role="img" aria-label="watchers" className="center">👀</span><div>{Intl.NumberFormat('en-US').format(repo.watchers_count)}</div>
-        </div>
-        */}
       </div>
     })}
   </div>

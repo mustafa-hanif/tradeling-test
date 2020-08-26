@@ -8,9 +8,9 @@ import { Error } from 'app/types';
 // Repo search thunk
 export const getReposThunk = createAsyncThunk<RepoJson, string, { rejectValue: Error }>(
   'repos/search',
-  async (q: String) => {
-    const response = await getRepos(q)
-    return response as RepoJson;
+  async (query: String) => {
+    const response = await getRepos(query)
+    return { ...response, query };
   }
 )
 
@@ -18,6 +18,7 @@ interface RepoJson {
   data: {
     items: Array<Repo>
   }
+  query: string
 }
 
 // name, author, stars and other statistics
@@ -35,12 +36,14 @@ export interface Repo {
 interface RepoState {
   error: Error | SerializedError | null
   repos: Array<Repo>
-  loading: 'idle' | 'pending' | 'succeeded' | 'failed'
+  query: string
+  loading: 'idle' | 'pending' | 'succeeded' | 'failed' | 'empty'
 }
 
 const initialState: RepoState = {
   repos: Array<Repo>(),
   error: null,
+  query: '',
   loading: 'idle'
 }
 
@@ -50,8 +53,13 @@ const repos = createSlice({
   reducers: {},
   extraReducers: builder => {
     builder.addCase(getReposThunk.fulfilled, (state, { payload }) => {
-      state.repos = payload.data.items;
-      state.loading = 'succeeded';
+      if (payload.data.items.length === 0) {
+        state.loading = 'empty';  
+      } else {
+        state.repos = payload.data.items;
+        state.loading = 'succeeded';
+      }
+      state.query = payload.query;
     })
 
     builder.addCase(getReposThunk.pending, (state) => {

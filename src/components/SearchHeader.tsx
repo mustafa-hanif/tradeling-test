@@ -1,4 +1,5 @@
-import React, { useState, ChangeEvent } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { ChangeEvent, useState, useEffect } from 'react';
 import debounce from 'lodash.debounce';
 import { useDispatch } from 'react-redux';
 import { getReposThunk } from 'slices/reposSlice';
@@ -21,30 +22,47 @@ type SelectChangeHandler = (e: SelectEvent) => void
 type InputChangeHandler = (e: InputEvent) => void
 
 export const SearchHeader = ({ searchType, setSearchType, searchModeStatus, setSearchModeStatus }: SearchProps) => {
+  const [searchString, setSearchString] = useState('');
   const dispatch = useDispatch();
-  const onSearchOptionChange: SelectChangeHandler = e => {
-    setSearchType(e.target.value);
-  }
 
-  const debouncedSearch = debounce((value: string) => {
-    if (searchType === 'users') {
+  // The function which actually performs the search
+  const performSearch = (value: string, searchTypeGiven: string) => {
+    if (searchTypeGiven === 'users') {
       dispatch(getUsersThunk(value));
     } else {
       dispatch(getReposThunk(value));
     }
-  }, 300);
-  const onQueryChange: InputChangeHandler = e => {
-    if (e.target.value.length > 2) {
-      debouncedSearch(e.target.value);
-      // debouncedSearch(e)
+  }
+
+  // Debounced function so only triggers if user has written something
+  const debouncedSearch = debounce((value: string, searchTypeGiven: string) => {
+    performSearch(value, searchTypeGiven);
+  }, 1000, { trailing: true });
+
+  useEffect(() => {
+    // Perform a search if there are more than 2 characters
+    if (searchString.length > 2) {
+      debouncedSearch(searchString, searchType);
+      
+      // Set the position of the search box based on where we are searching
       if (searchModeStatus === 'empty') {
         setSearchModeStatus('searching')
       }
-    } else if (e.target.value.length === 0) {
+    } else if (searchString.length === 0) {
       if (searchModeStatus === 'searching') {
         setSearchModeStatus('empty')
       }
     }
+  }, [searchString, searchType]);
+
+  const onSearchOptionChange: SelectChangeHandler = e => {
+    if (searchType !== e.target.value) {
+      setSearchType(e.target.value);
+    }
+  }
+
+  const onQueryChange: InputChangeHandler = e => {
+    setSearchString(e.target.value);
   }
 
   let animationClass = 'animation';

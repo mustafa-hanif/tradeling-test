@@ -1,21 +1,24 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import { createAsyncThunk, createSlice, SerializedError } from '@reduxjs/toolkit'
 
 import { getRepos } from 'api/githubAPI'
 import { User } from './userSlice';
+import { Error } from 'app/types';
 
-interface RepoJson {
-  data: {
-    items: Array<Repo>
-  }
-}
+
 // Repo search thunk
-export const getReposThunk = createAsyncThunk<RepoJson,string>(
+export const getReposThunk = createAsyncThunk<RepoJson, string, { rejectValue: Error }>(
   'repos/search',
   async (q: String) => {
     const response = await getRepos(q)
     return response as RepoJson;
   }
 )
+
+interface RepoJson {
+  data: {
+    items: Array<Repo>
+  }
+}
 
 // name, author, stars and other statistics
 export interface Repo {
@@ -30,7 +33,7 @@ export interface Repo {
 }
 
 interface RepoState {
-  error: string | null
+  error: Error | SerializedError | null
   repos: Array<Repo>
   loading: 'idle' | 'pending' | 'succeeded' | 'failed'
 }
@@ -51,8 +54,18 @@ const repos = createSlice({
       state.loading = 'succeeded';
     })
 
-    builder.addCase(getReposThunk.pending, (state, { payload }) => {
+    builder.addCase(getReposThunk.pending, (state) => {
       state.loading = 'pending';
+    })
+
+    builder.addCase(getReposThunk.rejected, (state, action) => {
+      state.loading = 'failed';
+      if (action.payload){
+        state.error = action.payload;
+      } else {
+        state.error = action.error;
+      }
+      
     })
   }
 })

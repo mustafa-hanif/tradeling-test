@@ -5,32 +5,8 @@ import { RootState } from './rootReducer'
 
 import './App.css'
 import { SearchHeader } from 'components/SearchHeader'
-import { Repo } from 'slices/reposSlice'
-import { User } from 'slices/userSlice'
-
-// name, author, stars and other statistics
-interface ListProps {
-  repos?: Repo[]
-  users?: User[]
-}
-
-// export const SearchHeader = ({ labels, className }: IssueLabelsProps) => (
-const List = ({ repos }: ListProps) => {
-  return <div className="results">
-    {repos && repos.map(repo => {
-      return <div key={repo.id} className="result">
-        <div className="repo-name">{repo.name}</div>
-        <div className="repo-desc">{repo.description}</div>
-        <span className="label">{repo.language}</span>
-        <div className="repo-detail">
-          <div className="center">🍴</div><div>{Intl.NumberFormat('en-US').format(repo.forks_count)}</div>
-          <div className="center">⭐</div><div>{Intl.NumberFormat('en-US').format(repo.stargazers_count)}</div>
-          <div className="center">👀</div><div>{Intl.NumberFormat('en-US').format(repo.watchers_count)}</div>
-        </div>
-      </div>
-    })}
-  </div>
-}
+import { Error } from './types'
+import { SerializedError } from '@reduxjs/toolkit'
 
 const Loading = () => {
   return <div className="results">
@@ -40,22 +16,101 @@ const Loading = () => {
   </div>
 }
 
+interface ErrorProp {
+  error: Error | SerializedError | null
+}
+
+const ErrorReact = ({ error }: ErrorProp) => {
+  console.log(error)
+  return <div className="error">
+    <h5>Error</h5>
+    <div>{(error as Error)?.message}</div>
+    <div>{(error as Error)?.documentation_url}</div>
+    <a href="/">Click here to reload the page in an attempt to recover from the error</a>
+  </div>
+}
+
 const App: React.FC = () => {
-  const [searchType, setSearchType] = useState('repos' as 'repos' | 'users');
+  const [searchType, setSearchType] = useState('users' as 'repos' | 'users');
   const [searchModeStatus, setSearchModeStatus] = useState('empty' as 'empty' | 'searching');
   
-  const { repos, loading: repoLoading, error: repoError } = useSelector((state: RootState) => state.repos)
-  const { users, loading: userLoading, error: userError } = useSelector((state: RootState) => state.users)
+  let renderedList = null;
+  if (searchModeStatus === 'searching') {
+    if (searchType === 'repos') {
+      renderedList = <RepoList />
+    } else {
+      renderedList = <UserList />
+    }
+  }
 
   return <div className="App">
     <SearchHeader searchType={searchType} setSearchType={setSearchType} 
     searchModeStatus={searchModeStatus} setSearchModeStatus={setSearchModeStatus} />
 
-    {searchModeStatus === 'searching' && <>
-      {searchType === 'repos' && repoLoading === 'succeeded' && <List repos={repos} />}
-      {searchType === 'users' && repoLoading === 'succeeded' && <List users={users} />}
-      {(repoLoading === 'pending' || userLoading === 'pending') && <Loading />}
-    </>}
+    {renderedList}
+  </div>
+}
+
+// export const SearchHeader = ({ labels, className }: IssueLabelsProps) => (
+const RepoList = () => {
+  const { repos, loading, error } = useSelector((state: RootState) => state.repos);
+
+  if (loading === 'pending') {
+    return <Loading />
+  }
+
+  if (loading === 'failed') {
+    return <ErrorReact error={error} />
+  }
+
+  return <div className="results">
+    {repos.map(repo => {
+      return <div key={repo.id} className="result">
+        <div className="repo-name">{repo.name}</div>
+        <div className="repo-desc">{repo.description}</div>
+        <span className="label">{repo.language}</span>
+        <div className="repo-detail">
+          <span role="img" aria-label="forks" className="center">🍴</span>
+          <div>{Intl.NumberFormat('en-US').format(repo.forks_count)}</div>
+          <span role="img" aria-label="stars" className="center">⭐</span>
+          <div>{Intl.NumberFormat('en-US').format(repo.stargazers_count)}</div>
+          <span role="img" aria-label="watchers" className="center">👀</span>
+          <div>{Intl.NumberFormat('en-US').format(repo.watchers_count)}</div>
+        </div>
+      </div>
+    })}
+  </div>
+}
+
+const UserList = () => {
+  const { users, loading, error } = useSelector((state: RootState) => state.users);
+
+  if (loading === 'pending') {
+    return <Loading />
+  }
+
+  if (loading === 'failed') {
+    return <ErrorReact error={error} />
+  }
+
+  return <div className="results">
+    {users.map(user => {
+      return <div key={user.url} className="result">
+        <img className="avatar" src={user.avatar_url} alt={user.login} />
+        <div className="repo-name">
+          <a href={user.url} className="link" target="_blank" rel="noopener noreferrer">{user.login}</a>
+        </div>
+        
+        {/* <div className="repo-desc">{repo.description}</div>
+        <span className="label">{repo.language}</span>
+        <div className="repo-detail">
+          <span role="img" aria-label="forks" className="center">🍴</span><div>{Intl.NumberFormat('en-US').format(repo.forks_count)}</div>
+          <span role="img" aria-label="stars" className="center">⭐</span><div>{Intl.NumberFormat('en-US').format(repo.stargazers_count)}</div>
+          <span role="img" aria-label="watchers" className="center">👀</span><div>{Intl.NumberFormat('en-US').format(repo.watchers_count)}</div>
+        </div>
+        */}
+      </div>
+    })}
   </div>
 }
 

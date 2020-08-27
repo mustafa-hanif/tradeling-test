@@ -4,6 +4,8 @@
 The demo is live at
 [Github Searcher](https://tradeling-test.vercel.app/)
 
+<img src="public/screenshot.png" width="400px" />
+
 ## Styling approach
 I took a simple CSS approach here, as CSS-in-JS solution like `styled-components` didn't make sense here for me. I like the idea of [Utility Classes](https://tailwindcss.com/#what-is-tailwind).
 

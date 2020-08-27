@@ -1,9 +1,7 @@
 import { createAsyncThunk, createSlice, SerializedError } from '@reduxjs/toolkit'
-
-import { getRepos } from 'api/githubAPI'
 import { User } from './userSlice';
 import { Error } from 'app/types';
-
+import { getRepos } from 'api/githubAPI'
 
 // Repo search thunk
 export const getReposThunk = createAsyncThunk<RepoJson, string, { rejectValue: Error }>(

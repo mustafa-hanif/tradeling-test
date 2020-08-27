@@ -39,7 +39,7 @@ const App: React.FC = () => {
   return <div className="App">
     <SearchHeader searchType={searchType} setSearchType={setSearchType} 
     searchModeStatus={searchModeStatus} setSearchModeStatus={setSearchModeStatus} />
-    {searchQuery && <h2>Search results for: {searchQuery}</h2>}
+    {searchQuery && searchModeStatus === 'searching' && <h2>Search results for: {searchQuery}</h2>}
     {renderedList}
   </div>
 }

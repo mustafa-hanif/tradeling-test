@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react'
 import UserList from 'components/UserList';
 import RepoList from 'components/RepoList';
@@ -23,7 +24,7 @@ const App: React.FC = () => {
       setSearchModeStatus('searching');
       setSearchType('repos');
     }
-  }, [location.pathname, location.search, newUrl.searchParams]);
+  }, []);
 
   let renderedList = null;
   if (searchModeStatus === 'searching') {

@@ -23,7 +23,7 @@ type InputChangeHandler = (e: InputEvent) => void
 // Debounced function so only triggers if user has written something
 const debouncedSearch = debounce((value: string, searchTypeGiven: string, performSearch) => {
   performSearch(value, searchTypeGiven);
-}, 1000, { trailing: true });
+}, 350, { trailing: true });
 
 export const SearchHeader = ({ searchType, setSearchType, searchModeStatus, setSearchModeStatus }: SearchProps) => {
   const [searchString, setSearchString] = useState('');

@@ -13,6 +13,7 @@ const UserList = () => {
   useEffect(() => {
     if (query) {
       const params = new URLSearchParams(window.location.search);
+      params.delete('repoQuery');
       params.set('userQuery', query);
       history.push(decodeURIComponent(`${window.location.pathname}?${params}`));
     }
@@ -32,7 +33,7 @@ const UserList = () => {
 
   return <div className="results">
     {users.map(user => {
-      return <div key={user.url} className="result">
+      return <div key={user.url} className="result" date-testid="result">
         <img className="avatar" src={user.avatar_url} alt={user.login} />
         <div className="repo-name">
           <a href={user.url} className="link" target="_blank" rel="noopener noreferrer">{user.login}</a>

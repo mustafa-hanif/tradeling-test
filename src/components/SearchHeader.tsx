@@ -4,7 +4,6 @@ import debounce from 'lodash.debounce';
 import { useDispatch } from 'react-redux';
 import { getReposThunk } from 'slices/reposSlice';
 import { getUsersThunk } from 'slices/userSlice';
-// import classnames from 'classnames'
 
 interface SearchProps {
   searchType: 'repos' | 'users'
@@ -74,7 +73,7 @@ export const SearchHeader = ({ searchType, setSearchType, searchModeStatus, setS
       <img className="logo" src="github_logo.png" alt="Github Logo" />
       <h1 className="heading">Github Searcher</h1>
       <h2 className="subheading">Search users or repositories below</h2>
-      <input className="search" type="text" placeholder="Start typing to search ..." onChange={onQueryChange} />
+      <input className="search" type="text" data-testid="search-input-box" placeholder="Start typing to search ..." onChange={onQueryChange} />
       <select className="select" onChange={onSearchOptionChange} value={searchType}>
         <option value="users">Users</option>
         <option value="repos">Repositories</option>

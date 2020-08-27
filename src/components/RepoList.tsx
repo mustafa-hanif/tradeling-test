@@ -14,6 +14,7 @@ const RepoList = () => {
     if (query) {
       const params = new URLSearchParams(window.location.search);
       params.set('repoQuery', query);
+      params.delete('userQuery');
       history.push(decodeURIComponent(`${window.location.pathname}?${params}`));
     }
   }, [history, query]);

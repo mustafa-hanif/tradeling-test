@@ -12,8 +12,8 @@ const App: React.FC = () => {
   const [searchModeStatus, setSearchModeStatus] = useState('empty' as 'empty' | 'searching');
   
   const location = useLocation();
+  const newUrl = new URL(`${window.location.origin}${location.pathname}${location.search}`);
   useEffect(() => {
-    const newUrl = new URL(`${window.location.origin}${location.pathname}${location.search}`);
     if (newUrl.searchParams.has('userQuery')) {
       setSearchModeStatus('searching');
       setSearchType('users');
@@ -23,7 +23,7 @@ const App: React.FC = () => {
       setSearchModeStatus('searching');
       setSearchType('repos');
     }
-  }, [location.pathname, location.search]);
+  }, [location.pathname, location.search, newUrl.searchParams]);
 
   let renderedList = null;
   if (searchModeStatus === 'searching') {
@@ -34,10 +34,11 @@ const App: React.FC = () => {
     }
   }
 
+  const searchQuery = newUrl.searchParams.get('userQuery') || newUrl.searchParams.get('repoQuery');
   return <div className="App">
     <SearchHeader searchType={searchType} setSearchType={setSearchType} 
     searchModeStatus={searchModeStatus} setSearchModeStatus={setSearchModeStatus} />
-
+    {searchQuery && <h2>Search results for: {searchQuery}</h2>}
     {renderedList}
   </div>
 }

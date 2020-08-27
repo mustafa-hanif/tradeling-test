@@ -36,7 +36,7 @@ const UserList = () => {
       return <div key={user.url} className="result" date-testid="result">
         <img className="avatar" src={user.avatar_url} alt={user.login} />
         <div className="repo-name">
-          <a href={user.url} className="link" target="_blank" rel="noopener noreferrer">{user.login}</a>
+          <a href={user.html_url} className="link" target="_blank" rel="noopener noreferrer">{user.login}</a>
         </div>
       </div>
     })}

@@ -23,6 +23,7 @@ export interface User {
   login: string
   repos_url: string
   avatar_url: string
+  html_url: string
   url: string
 }
 

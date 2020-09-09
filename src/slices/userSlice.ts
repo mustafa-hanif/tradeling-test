@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice, SerializedError } from '@reduxjs/toolkit'
 import { Error } from '../app/types';
 import { getUsers } from 'api/githubAPI'
+import { RootState } from 'app/rootReducer';
 
 // Repo search thunk
 export const getUsersThunk = createAsyncThunk<PayLoadData, string, { rejectValue: Error }>(
@@ -8,6 +9,16 @@ export const getUsersThunk = createAsyncThunk<PayLoadData, string, { rejectValue
   async (query: String) => {
     const response = await getUsers(query)
     return { ...response, query }
+  },
+  {
+    condition: (query: String, { getState }) => {
+      const { users: {
+        query: userQuery
+      } } = getState() as RootState;
+      if (query === userQuery) {
+        return false;
+      }
+    }
   }
 )
 

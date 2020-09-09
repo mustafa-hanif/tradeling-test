@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice, SerializedError } from '@reduxjs/toolkit
 import { User } from './userSlice';
 import { Error } from 'app/types';
 import { getRepos } from 'api/githubAPI'
+import { RootState } from 'app/rootReducer';
 
 // Repo search thunk
 export const getReposThunk = createAsyncThunk<RepoJson, string, { rejectValue: Error }>(
@@ -9,6 +10,16 @@ export const getReposThunk = createAsyncThunk<RepoJson, string, { rejectValue: E
   async (query: String) => {
     const response = await getRepos(query)
     return { ...response, query };
+  },
+  {
+    condition: (query: String, { getState }) => {
+      const { repos: {
+        query: repoQuery
+      } } = getState() as RootState;
+      if (query === repoQuery) {
+        return false;
+      }
+    }
   }
 )
 

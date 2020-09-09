@@ -31,6 +31,9 @@ export const SearchHeader = ({ searchType, setSearchType, searchModeStatus, setS
 
   // The function which actually performs the search
   const performSearch = (value: string, searchTypeGiven: string) => {
+    if (value.length < 3) {
+      return;
+    }
     if (searchTypeGiven === 'users') {
       dispatch(getUsersThunk(value));
     } else {
@@ -47,10 +50,8 @@ export const SearchHeader = ({ searchType, setSearchType, searchModeStatus, setS
       if (searchModeStatus === 'empty') {
         setSearchModeStatus('searching')
       }
-    } else if (searchString.length === 0) {
-      if (searchModeStatus === 'searching') {
-        setSearchModeStatus('empty')
-      }
+    } else if (searchString.length === 0 && searchModeStatus === 'searching') {
+      setSearchModeStatus('empty')
     }
   }, [searchString, searchType]);
 
